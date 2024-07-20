@@ -2,6 +2,8 @@ package database
 
 import "time"
 
+const TableNameTask string = "task"
+
 type Task struct {
 	TaskId              string     `json:"task_id"`
 	TaskName            string     `json:"task_name"`
@@ -11,4 +13,9 @@ type Task struct {
 	TaskDurationMinutes int        `json:"task_duration_minutes"`
 	DueDate             *time.Time `json:"due_date"`
 	CreatedAt           *time.Time `json:"created_at"`
+}
+
+type Filter struct {
+	Status    string `json:"status"`
+	IsDeleted *bool  `json:"is_deleted"`
 }

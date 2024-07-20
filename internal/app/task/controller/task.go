@@ -1,17 +1,17 @@
-package employee
+package task
 
 import (
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
+	"slices"
 
 	modelDb "sagala-tech-test/database/model"
 	repo "sagala-tech-test/internal/app/task/repository"
 	constants "sagala-tech-test/internal/constant"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -44,8 +44,8 @@ func CreateTask(c *gin.Context) {
 		return
 	}
 
-	id := uuid.New()
-	task.TaskId = id.String()
+	task.Status = "waiting_list"
+	task.IsDeleted = true
 
 	result, err := repo.CreateTaskRepo(task)
 	if err != nil {
@@ -94,7 +94,23 @@ func ReadTasks(c *gin.Context) {
 	log.Info(fmt.Printf(constants.ReadProcess, domainNameTask))
 	defer log.Info(fmt.Printf(constants.ReadProcessDone, domainNameTask))
 
-	result, err := repo.ReadTasksRepo()
+	var filter *modelDb.Filter
+	err := c.ShouldBind(&filter)
+
+	status := c.Param("status")
+	statuses := []string{"waiting_list", "in_progress", "done", ""}
+
+	statusAvailable := slices.Contains(statuses, status)
+	if !statusAvailable {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "status " + status + " not found",
+		})
+
+		log.Error("status " + status + " not found")
+		return
+	}
+
+	result, err := repo.ReadTasksRepo(filter)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error": errors.New("task not found"),
@@ -130,7 +146,118 @@ func UpdateTask(c *gin.Context) {
 		return
 	}
 
+	resultTask, err := repo.ReadTaskRepo(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "task not found",
+		})
+
+		log.Error("task not found")
+		return
+	}
+
+	if resultTask.Status != task.Status {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "update task cannot use for update status",
+		})
+
+		log.Error("update task cannot use for update status")
+		return
+	}
+
 	result, err := repo.UpdateTaskRepo(&task)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		log.Error("task not updated")
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"taks": result,
+	})
+	log.Info(fmt.Printf(constants.UpdateProcessSuccess, domainNameTask))
+
+	return
+}
+
+func UpdateStatusTask(c *gin.Context) {
+	log := initLog()
+	log.Info(fmt.Printf(constants.UpdateStatusProcess, domainNameTask))
+	defer log.Info(fmt.Printf(constants.UpdateStatusProcessDone, domainNameTask))
+
+	id := c.Param("id")
+	status := c.Param("status")
+	statuses := []string{"waiting_list", "in_progress", "done"}
+
+	statusAvailable := slices.Contains(statuses, status)
+	if !statusAvailable {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "status " + status + " not found",
+		})
+
+		log.Error("status " + status + " not found")
+		return
+	}
+
+	resultTask, err := repo.ReadTaskRepo(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "task not found",
+		})
+
+		log.Error("task not found")
+		return
+	}
+
+	resultTask.Status = status
+
+	result, err := repo.UpdateTaskRepo(resultTask)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+
+		log.Error("task not updated")
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"taks": result,
+	})
+	log.Info(fmt.Printf(constants.UpdateStatusProcessDone, domainNameTask))
+
+	return
+}
+
+func SoftDeleteTask(c *gin.Context) {
+	log := initLog()
+	log.Info(fmt.Printf(constants.UpdateProcess, domainNameTask))
+	defer log.Info(fmt.Printf(constants.UpdateProcessDone, domainNameTask))
+
+	id := c.Param("id")
+	resultTask, err := repo.ReadTaskRepo(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": "task not found",
+		})
+
+		log.Error("task not found")
+		return
+	}
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+
+		log.Error(err.Error())
+		return
+	}
+
+	resultTask.IsDeleted = true
+
+	result, err := repo.UpdateTaskRepo(resultTask)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),

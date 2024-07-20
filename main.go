@@ -14,11 +14,13 @@ func main() {
 	database.DatabaseConnection()
 
 	r := gin.Default()
-	r.GET("/employees/:id", emp.ReadTask)
-	r.GET("/employees", emp.ReadTasks)
-	r.POST("/employees", emp.CreateTask)
-	r.PUT("/employees/:id", emp.UpdateTask)
-	r.DELETE("/employees/:id", emp.DeleteTask)
+	r.GET("/task/:id", emp.ReadTask)
+	r.POST("/tasks", emp.ReadTasks)
+	r.POST("/task", emp.CreateTask)
+	r.PUT("/task/:id", emp.UpdateTask)
+	r.PUT("/task/:id/:status", emp.UpdateStatusTask)
+	r.PUT("/task/:id/remove", emp.SoftDeleteTask)
+	r.DELETE("/task/:id", emp.DeleteTask)
 
 	r.Run(":5000")
 }

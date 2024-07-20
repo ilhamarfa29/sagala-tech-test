@@ -1,117 +1,127 @@
-package employee
+package task
 
-// import (
-// 	"testing"
+import (
+	"fmt"
+	"testing"
+	"time"
 
-// 	"sagala-tech-test/database"
-// 	model "sagala-tech-test/database/model"
-// 	repo "sagala-tech-test/internal/app/task/repository"
-// )
+	"sagala-tech-test/database"
+	model "sagala-tech-test/database/model"
+	repo "sagala-tech-test/internal/app/task/repository"
+)
 
-// func TestCreateTaskRepo(t *testing.T) {
-// 	database.DatabaseConnection()
+func TestCreateTaskRepo(t *testing.T) {
+	database.DatabaseConnection()
 
-// 	task := &model.Task{
-// 		EmployeeName: "Ahmad",
-// 		JobTitle:     "Manager",
-// 		Salary:       70000,
-// 		Department:   "Sales",
-// 	}
+	layout := time.RFC3339
+	str := "2024-07-20T10:10:30Z"
+	timeParsed, err := time.Parse(layout, str)
+	if err != nil {
+		fmt.Println("Error parsing time:", err)
+		return
+	}
 
-// 	result, _ := repo.CreateTaskRepo(task)
+	task := &model.Task{
+		TaskName:            "PR Matematika Pak Rusdi",
+		Description:         "PR Matematika ini sulit, jadi perlu di breakdown satu-satu prosesnya dan dijelaskan",
+		TaskDurationMinutes: 240,
+		DueDate:             &timeParsed,
+	}
 
-// 	if result != nil {
-// 		if result.EmployeeId == "" {
-// 			t.Error("Must return Employee Id")
-// 		}
+	result, _ := repo.CreateTaskRepo(task)
 
-// 		if result.EmployeeName != employee.EmployeeName {
-// 			t.Errorf("Employee Name is Different")
-// 		}
+	if result != nil {
+		if result.TaskId == "" {
+			t.Error("Must return Task Id")
+		}
 
-// 		if result.JobTitle != employee.JobTitle {
-// 			t.Errorf("Job Title is Different")
-// 		}
+		if result.TaskName != task.TaskName {
+			t.Errorf("Task Name is Different")
+		}
 
-// 		if result.Salary != employee.Salary {
-// 			t.Errorf("Salary is Different")
-// 		}
+		if result.Description != task.Description {
+			t.Errorf("Description is Different")
+		}
 
-// 		if result.Department != employee.Department {
-// 			t.Errorf("Department is Different")
-// 		}
-// 	}
-// }
+		if result.TaskDurationMinutes != task.TaskDurationMinutes {
+			t.Errorf("Task Duration is Different")
+		}
 
-// func TestReadEmployeeRepo(t *testing.T) {
-// 	database.DatabaseConnection()
-// 	id := ""
-// 	result, _ := repo.ReadEmployeeRepo(id)
+		if result.DueDate != task.DueDate {
+			t.Errorf("Due Date is Different")
+		}
 
-// 	if result != nil {
-// 		if result.EmployeeId == "" {
-// 			t.Error("Must return Employee Id")
-// 		}
+		if task.Status == "waiting_list" {
+			t.Errorf("Task Status Must be in Waiting List")
+		}
 
-// 		if result.EmployeeName != "" {
-// 			t.Errorf("Employee Name is empty")
-// 		}
+		if task.IsDeleted == true {
+			t.Errorf("Task Status Must be in active status")
+		}
+	}
+}
 
-// 		if result.JobTitle != "" {
-// 			t.Errorf("Job Title is empty")
-// 		}
+func TestReadTaskRepo(t *testing.T) {
+	database.DatabaseConnection()
+	id := ""
+	result, _ := repo.ReadTaskRepo(id)
 
-// 		if result.Salary != 0 {
-// 			t.Errorf("Salary is empty")
-// 		}
+	if result != nil {
+		if result.TaskId == "" {
+			t.Error("Must return Task Id")
+		}
 
-// 		if result.Department != "" {
-// 			t.Errorf("Department is empty")
-// 		}
-// 	}
-// }
+		if result.TaskName != "" {
+			t.Errorf("Task Name is empty")
+		}
+	}
+}
 
-// func TestReadEmployeesRepo(t *testing.T) {
-// 	database.DatabaseConnection()
-// 	result, _ := repo.ReadEmployeesRepo()
+func TestReadTasksRepo(t *testing.T) {
+	database.DatabaseConnection()
+	result, _ := repo.ReadTasksRepo(nil)
 
-// 	if len(result) > 0 {
-// 		for _, employee := range result {
-// 			if employee.EmployeeId == "" {
-// 				t.Error("Must return Employee Id")
-// 			}
-// 		}
+	if len(result) > 0 {
+		for _, task := range result {
+			if task.TaskId == "" {
+				t.Error("Must return Task Id")
+			}
 
-// 	}
-// }
+			if task.TaskName != "" {
+				t.Errorf("Must return Task Name")
+			}
+		}
 
-// func TestUpdateEmployeeRepo(t *testing.T) {
-// 	database.DatabaseConnection()
+	}
+}
 
-// 	employee := &model.Task{
-// 		EmployeeId:   "f67e557a-cd07-409a-b272-e5eaa71f8017",
-// 		EmployeeName: "Ahmad Baru",
-// 		JobTitle:     "Manager",
-// 		Salary:       70000,
-// 		Department:   "Sales",
-// 	}
+func TestUpdateEmployeeRepo(t *testing.T) {
+	database.DatabaseConnection()
 
-// 	result, _ := repo.UpdateEmployeeRepo(employee)
+	employee := &model.Task{
+		//EmployeeId:   "f67e557a-cd07-409a-b272-e5eaa71f8017",
+		//EmployeeName: "Ahmad Baru",
+		//JobTitle:     "Manager",
+		//Salary:       70000,
+		//Department:   "Sales",
+	}
 
-// 	if result != nil {
-// 		if result.EmployeeId == "" {
-// 			t.Error("Must return Employee Id")
-// 		}
-// 	}
-// }
+	result, _ := repo.UpdateTaskRepo(employee)
 
-// func TestDeleteEmployeeRepo(t *testing.T) {
-// 	database.DatabaseConnection()
+	if result != nil {
+		if result.TaskId == "" {
+			t.Error("Must return Task Id")
+		}
+	}
+}
 
-// 	id := ""
-// 	err := repo.DeleteEmployeeRepo(id)
+func TestDeleteEmployeeRepo(t *testing.T) {
+	database.DatabaseConnection()
 
-// 	if err == nil {
-// 		t.Error("")
-// 	}
-// }
+	id := ""
+	err := repo.DeleteTaskRepo(id)
+
+	if err == nil {
+		t.Error("")
+	}
+}

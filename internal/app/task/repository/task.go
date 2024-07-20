@@ -19,7 +19,7 @@ func CreateTaskRepo(task *modelDb.Task) (*modelDb.Task, error) {
 		task.CreatedAt = &t
 	}
 
-	res := database.DB.Create(task)
+	res := database.DB.Table(modelDb.TableNameTask).Create(task)
 	if res.RowsAffected == 0 {
 		return nil, errors.New("error creating a task")
 	}
@@ -31,7 +31,7 @@ func ReadTaskRepo(id string) (*modelDb.Task, error) {
 
 	var task modelDb.Task
 
-	res := database.DB.Where("task_id = ?", id).Find(&task)
+	res := database.DB.Table(modelDb.TableNameTask).Where("task_id = ?", id).Find(&task)
 	if res.RowsAffected == 0 {
 		return nil, errors.New("task not found")
 	}
@@ -39,12 +39,30 @@ func ReadTaskRepo(id string) (*modelDb.Task, error) {
 	return &task, nil
 }
 
-func ReadTasksRepo() ([]modelDb.Task, error) {
+func ReadTasksRepo(filter *modelDb.Filter) ([]modelDb.Task, error) {
 
 	var task []modelDb.Task
-	res := database.DB.Find(&task)
-	if res.Error != nil {
-		return nil, errors.New("task not found")
+	if filter.Status == "" && filter.IsDeleted == nil {
+		res := database.DB.Table(modelDb.TableNameTask).Order("created_at desc").Find(&task)
+		if res.Error != nil {
+			return nil, errors.New("task not found")
+		}
+	} else if filter.Status != "" && filter.IsDeleted != nil {
+		res := database.DB.Table(modelDb.TableNameTask).Where(map[string]interface{}{"status": filter.Status, "is_deleted": filter.IsDeleted}).
+			Order("created_at desc").Find(&task)
+		if res.Error != nil {
+			return nil, errors.New("task not found")
+		}
+	} else if filter.Status != "" {
+		res := database.DB.Table(modelDb.TableNameTask).Where("status = ?", filter.Status).Order("created_at desc").Find(&task)
+		if res.Error != nil {
+			return nil, errors.New("task not found")
+		}
+	} else if filter.IsDeleted != nil {
+		res := database.DB.Table(modelDb.TableNameTask).Where("is_deleted = ?", filter.IsDeleted).Order("created_at desc").Find(&task)
+		if res.Error != nil {
+			return nil, errors.New("task not found")
+		}
 	}
 
 	return task, nil
@@ -52,7 +70,7 @@ func ReadTasksRepo() ([]modelDb.Task, error) {
 
 func UpdateTaskRepo(task *modelDb.Task) (*modelDb.Task, error) {
 	var updateTask modelDb.Task
-	res := database.DB.Model(&updateTask).Where("task_id = ?", task.TaskId).Updates(task)
+	res := database.DB.Table(modelDb.TableNameTask).Model(&updateTask).Where("task_id = ?", task.TaskId).Updates(task)
 
 	if res.RowsAffected == 0 {
 		return nil, errors.New("task not updated")
@@ -62,12 +80,12 @@ func UpdateTaskRepo(task *modelDb.Task) (*modelDb.Task, error) {
 }
 
 func DeleteTaskRepo(id string) error {
-	var employee modelDb.Task
-	res := database.DB.Where("task_id = ?", id).Find(&employee)
+	var task modelDb.Task
+	res := database.DB.Table(modelDb.TableNameTask).Where("task_id = ?", id).Find(&task)
 	if res.RowsAffected == 0 {
 		return errors.New("task not found")
 	}
-	database.DB.Delete(&employee, "task_id = ?", id)
+	database.DB.Table(modelDb.TableNameTask).Delete(&task, "task_id = ?", id)
 
 	return nil
 }

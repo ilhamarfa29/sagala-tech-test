@@ -14,7 +14,7 @@ var err error
 func DatabaseConnection() {
 	host := "localhost"
 	port := "5432"
-	dbName := "waizly_assesment"
+	dbName := "sagala_tech_test"
 	dbUser := "postgres"
 	password := "password"
 	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
