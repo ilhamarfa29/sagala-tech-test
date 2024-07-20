@@ -44,9 +44,6 @@ func CreateTask(c *gin.Context) {
 		return
 	}
 
-	task.Status = "waiting_list"
-	task.IsDeleted = true
-
 	result, err := repo.CreateTaskRepo(task)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -96,6 +93,14 @@ func ReadTasks(c *gin.Context) {
 
 	var filter *modelDb.Filter
 	err := c.ShouldBind(&filter)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": errors.New("error parsing payload"),
+		})
+
+		log.Error("error parsing payload")
+		return
+	}
 
 	status := c.Param("status")
 	statuses := []string{"waiting_list", "in_progress", "done", ""}
@@ -119,6 +124,7 @@ func ReadTasks(c *gin.Context) {
 		log.Error("task not found")
 		return
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"tasks": result,
 	})
@@ -175,7 +181,7 @@ func UpdateTask(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"taks": result,
+		"task": result,
 	})
 	log.Info(fmt.Printf(constants.UpdateProcessSuccess, domainNameTask))
 
@@ -237,15 +243,6 @@ func SoftDeleteTask(c *gin.Context) {
 
 	id := c.Param("id")
 	resultTask, err := repo.ReadTaskRepo(id)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": "task not found",
-		})
-
-		log.Error("task not found")
-		return
-	}
-
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err,

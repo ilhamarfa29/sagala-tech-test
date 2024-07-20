@@ -1,4 +1,4 @@
-package employee
+package task
 
 import (
 	"errors"
@@ -14,6 +14,9 @@ func CreateTaskRepo(task *modelDb.Task) (*modelDb.Task, error) {
 
 	id := uuid.New()
 	task.TaskId = id.String()
+	task.Status = "waiting_list"
+	task.IsDeleted = false
+
 	if task.CreatedAt == nil {
 		t := time.Now()
 		task.CreatedAt = &t

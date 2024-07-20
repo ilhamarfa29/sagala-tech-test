@@ -19,7 +19,7 @@ func main() {
 	r.POST("/task", emp.CreateTask)
 	r.PUT("/task/:id", emp.UpdateTask)
 	r.PUT("/task/:id/:status", emp.UpdateStatusTask)
-	r.PUT("/task/:id/remove", emp.SoftDeleteTask)
+	r.PUT("/task/remove/:id", emp.SoftDeleteTask)
 	r.DELETE("/task/:id", emp.DeleteTask)
 
 	r.Run(":5000")
