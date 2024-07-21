@@ -31,8 +31,8 @@ func initLog() *logrus.Logger {
 
 func CreateTask(c *gin.Context) {
 	log := initLog()
-	log.Info(fmt.Printf(constants.CreateProcess, domainNameTask))
-	defer log.Info(fmt.Printf(constants.CreateProcessDone, domainNameTask))
+	log.Info(fmt.Sprintf(constants.CreateProcess, domainNameTask))
+	defer log.Info(fmt.Sprintf(constants.CreateProcessDone, domainNameTask))
 
 	var task *modelDb.Task
 	err := c.ShouldBind(&task)
@@ -57,15 +57,15 @@ func CreateTask(c *gin.Context) {
 		"task": result,
 	})
 
-	log.Info(fmt.Printf(constants.CreateProcessSuccess, domainNameTask))
+	log.Info(fmt.Sprintf(constants.CreateProcessSuccess, domainNameTask))
 
 	return
 }
 
 func ReadTask(c *gin.Context) {
 	log := initLog()
-	log.Info(fmt.Printf(constants.ReadByIdProcess, domainNameTask))
-	defer log.Info(fmt.Printf(constants.ReadByIdProcessDone, domainNameTask))
+	log.Info(fmt.Sprintf(constants.ReadByIdProcess, domainNameTask))
+	defer log.Info(fmt.Sprintf(constants.ReadByIdProcessDone, domainNameTask))
 
 	id := c.Param("id")
 	result, err := repo.ReadTaskRepo(id)
@@ -81,15 +81,15 @@ func ReadTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"task": result,
 	})
-	log.Info(fmt.Printf(constants.ReadByIdProcessSuccess, domainNameTask))
+	log.Info(fmt.Sprintf(constants.ReadByIdProcessSuccess, domainNameTask))
 
 	return
 }
 
 func ReadTasks(c *gin.Context) {
 	log := initLog()
-	log.Info(fmt.Printf(constants.ReadProcess, domainNameTask))
-	defer log.Info(fmt.Printf(constants.ReadProcessDone, domainNameTask))
+	log.Info(fmt.Sprintf(constants.ReadProcess, domainNameTask))
+	defer log.Info(fmt.Sprintf(constants.ReadProcessDone, domainNameTask))
 
 	var filter *modelDb.Filter
 	err := c.ShouldBind(&filter)
@@ -128,15 +128,15 @@ func ReadTasks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"tasks": result,
 	})
-	log.Info(fmt.Printf(constants.ReadProcessSuccess, domainNameTask))
+	log.Info(fmt.Sprintf(constants.ReadProcessSuccess, domainNameTask))
 
 	return
 }
 
 func UpdateTask(c *gin.Context) {
 	log := initLog()
-	log.Info(fmt.Printf(constants.UpdateProcess, domainNameTask))
-	defer log.Info(fmt.Printf(constants.UpdateProcessDone, domainNameTask))
+	log.Info(fmt.Sprintf(constants.UpdateProcess, domainNameTask))
+	defer log.Info(fmt.Sprintf(constants.UpdateProcessDone, domainNameTask))
 
 	var task modelDb.Task
 	id := c.Param("id")
@@ -183,15 +183,15 @@ func UpdateTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"task": result,
 	})
-	log.Info(fmt.Printf(constants.UpdateProcessSuccess, domainNameTask))
+	log.Info(fmt.Sprintf(constants.UpdateProcessSuccess, domainNameTask))
 
 	return
 }
 
 func UpdateStatusTask(c *gin.Context) {
 	log := initLog()
-	log.Info(fmt.Printf(constants.UpdateStatusProcess, domainNameTask))
-	defer log.Info(fmt.Printf(constants.UpdateStatusProcessDone, domainNameTask))
+	log.Info(fmt.Sprintf(constants.UpdateStatusProcess, domainNameTask))
+	defer log.Info(fmt.Sprintf(constants.UpdateStatusProcessDone, domainNameTask))
 
 	id := c.Param("id")
 	status := c.Param("status")
@@ -231,15 +231,15 @@ func UpdateStatusTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"taks": result,
 	})
-	log.Info(fmt.Printf(constants.UpdateStatusProcessDone, domainNameTask))
+	log.Info(fmt.Sprintf(constants.UpdateStatusProcessDone, domainNameTask))
 
 	return
 }
 
 func SoftDeleteTask(c *gin.Context) {
 	log := initLog()
-	log.Info(fmt.Printf(constants.UpdateProcess, domainNameTask))
-	defer log.Info(fmt.Printf(constants.UpdateProcessDone, domainNameTask))
+	log.Info(fmt.Sprintf(constants.UpdateProcess, domainNameTask))
+	defer log.Info(fmt.Sprintf(constants.UpdateProcessDone, domainNameTask))
 
 	id := c.Param("id")
 	resultTask, err := repo.ReadTaskRepo(id)
@@ -266,15 +266,15 @@ func SoftDeleteTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"taks": result,
 	})
-	log.Info(fmt.Printf(constants.UpdateProcessSuccess, domainNameTask))
+	log.Info(fmt.Sprintf(constants.UpdateProcessSuccess, domainNameTask))
 
 	return
 }
 
 func DeleteTask(c *gin.Context) {
 	log := initLog()
-	log.Info(fmt.Printf(constants.DeleteProcess, domainNameTask))
-	defer log.Info(fmt.Printf(constants.DeleteProcessDone, domainNameTask))
+	log.Info(fmt.Sprintf(constants.DeleteProcess, domainNameTask))
+	defer log.Info(fmt.Sprintf(constants.DeleteProcessDone, domainNameTask))
 
 	id := c.Param("id")
 	_, err := repo.ReadTaskRepo(id)
@@ -292,7 +292,7 @@ func DeleteTask(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": err.Error(),
 		})
-		log.Error(fmt.Printf(constants.ErrDataNotFound, domainNameTask))
+		log.Error(fmt.Sprintf(constants.ErrDataNotFound, domainNameTask))
 
 		return
 	}
@@ -300,7 +300,7 @@ func DeleteTask(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "task deleted successfully",
 	})
-	log.Info(fmt.Printf(constants.DeleteProcessSuccess, domainNameTask))
+	log.Info(fmt.Sprintf(constants.DeleteProcessSuccess, domainNameTask))
 
 	return
 }
